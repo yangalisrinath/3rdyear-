@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PRODUCTO</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background-color: #444;
+      color: white;
+      padding: 10px 20px;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #aaa;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+
+    input {
+      margin: 5px;
+      padding: 5px;
+    }
+
+    button {
+      padding: 5px 10px;
+      margin: 2px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="#" alt="Logo" style="height: 30px;">
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Products</a>
+    <a href="#">About</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>Product Form</h2>
+  <input type="text" id="productId" placeholder="Product ID">
+  <input type="text" id="productName" placeholder="Product Name">
+  <input type="number" id="productPrice" placeholder="Price">
+  <input type="number" id="productQty" placeholder="Quantity">
+  <input type="button" id="addBtn" value="Add Product" onclick="addProduct()">
+  <button onclick="displayProducts()">Display Products</button>
+
+  <table id="productTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic product rows go here -->
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  © 2025 PRODUCTO Inc. All rights reserved.
+</footer>
+
+<script>
+  const apiUrl = "http://localhost:3030/products";
+  let editMode = false;
+  let editProductId = null;
+
+  async function displayProducts() {
+    const tableBody = document.getElementById("productTable").querySelector("tbody");
+    tableBody.innerHTML = "";
+    try {
+      const res = await fetch(apiUrl);
+      const products = await res.json();
+      products.forEach((product, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${product.id}</td>
+          <td>${product.name}</td>
+          <td>${product.price}</td>
+          <td>${product.qty}</td>
+          <td>
+            <button onclick="startEditProduct('${product.id}')">Update</button>
+            <button onclick="deleteProduct('${product.id}')">Delete</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } catch (err) {
+      tableBody.innerHTML = "<tr><td colspan='5'>Could not load products.</td></tr>";
+    }
+  }
+
+  async function addProduct() {
+    const id = document.getElementById("productId").value.trim();
+    const name = document.getElementById("productName").value.trim();
+    const price = parseFloat(document.getElementById("productPrice").value).toFixed(2);
+    const qty = parseInt(document.getElementById("productQty").value);
+
+    if (!id || !name || isNaN(price) || isNaN(qty)) {
+      alert("Please fill in all fields correctly.");
+      return;
+    }
+
+    if (editMode && editProductId) {
+      // Update mode
+      await fetch(`${apiUrl}/${editProductId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, name, price, qty })
+      });
+      editMode = false;
+      editProductId = null;
+      document.getElementById("addBtn").value = "Add Product";
+    } else {
+      // Add mode
+      const res = await fetch(apiUrl);
+      const products = await res.json();
+      if (products.some(p => p.id === id)) {
+        alert("Product ID already exists!");
+        return;
+      }
+      await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, name, price, qty })
+      });
+    }
+
+    clearFields();
+    displayProducts();
+  }
+
+  async function deleteProduct(id) {
+    const res = await fetch(apiUrl);
+    const products = await res.json();
+    const prod = products.find(p => p.id === id);
+    if (prod) {
+      await fetch(`${apiUrl}/${prod.id}`, { method: "DELETE" });
+      displayProducts();
+    }
+  }
+
+  async function startEditProduct(id) {
+    const res = await fetch(apiUrl);
+    const products = await res.json();
+    const prod = products.find(p => p.id === id);
+    if (!prod) return;
+    document.getElementById("productId").value = prod.id;
+    document.getElementById("productName").value = prod.name;
+    document.getElementById("productPrice").value = prod.price;
+    document.getElementById("productQty").value = prod.qty;
+    editMode = true;
+    editProductId = prod.id;
+    document.getElementById("addBtn").value = "Update Product";
+  }
+
+  function clearFields() {
+    document.getElementById("productId").value = "";
+    document.getElementById("productName").value = "";
+    document.getElementById("productPrice").value = "";
+    document.getElementById("productQty").value = "";
+    editMode = false;
+    editProductId = null;
+    document.getElementById("addBtn").value = "Add Product";
+  }
+
+  // Initial load
+  displayProducts();
+</script>
+
+</body>
+</html>
