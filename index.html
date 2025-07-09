@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PRODUCTO</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <img src="https://static.collegedekho.com/media/img/institute/logo/Malla_reddy_University_logo.png" alt="logo" width="80" height="60"></div>
+    
+   
+    <div class="title">PRODUCTO</div>
+  </header>
+  <section>
+    <nav>
+    <div class="navbar">
+      <a href="#">|Home|</a> 
+      <a href="#">|About Us|</a>
+      <a href="#">|Contact|</a>
+      </div>
+    </nav>
+  </section>
+  <main>
+    <h1>Product Form</h1>
+    <div class="form">
+      <input type="text" id="productId" placeholder="Product ID">
+      <input type="text" id="productName" placeholder="Product Name">
+      <input type="number" id="price" placeholder="Price">
+      <input type="number" id="quantity" placeholder="Quantity">
+      <button onclick="addOrUpdateProduct()">Add Product</button>
+      <button onclick="displayProducts()">Display Products</button>
+    </div>
+
+    <table id="productTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    </thead>
+      <tbody>
+        <!-- Product rows go here -->
+      </tbody>
+    </table>
+  </main>
+  <footer>
+    <p>&copy; 2024 PRODUCTO.inc</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
